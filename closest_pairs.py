@@ -114,9 +114,15 @@ class ClosestPairs(object):
         return d
     
     def add_point(self,event):
+        self.size += 1
         self.canvas.create_oval(event.x-self.dot_radius, event.y-self.dot_radius,event.x+self.dot_radius, event.y+self.dot_radius, fill='blue')
-        # self.window.mainloop()
-        pass
+        new_point = {}
+        new_point["x"] = event.x
+        new_point["y"] = event.y
+        self.points_list.append(new_point)
+        self.points_list = self.sort_x(self.points_list)
+        print("点击加入点后的最短距离为：",self.get_closest_pairs(0, self.size-1))
+
         
 
 if __name__ == '__main__':
