@@ -1,3 +1,9 @@
+# coding=utf-8
+"""
+Created on 2019.2.10
+@author: 刘祥
+分治求最短点对算法参考博客：https://blog.csdn.net/Lytning/article/details/25370169
+"""
 import numpy as np
 from tkinter import *
 import random
@@ -54,16 +60,39 @@ class ClosestPairs(object):
         #水平滚动条
         self.hbar=Scrollbar(self.frame,orient=HORIZONTAL) 
         self.hbar.pack(side=BOTTOM,fill=X)
-        self.hbar.config(command=self.canvas.xview) 
+        self.hbar.config(command=self.xview) 
+        self.hbar_offset = 0
   
         #竖直滚动条 
         self.vbar=Scrollbar(self.frame,orient=VERTICAL)   
         self.vbar.pack(side=RIGHT,fill=Y)
-        self.vbar.config(command=self.canvas.yview)
+        self.vbar.config(command=self.yview)
+        self.vbar_offset = 0
 
         #canvas属性设置
         self.canvas.config(xscrollcommand=self.hbar.set, yscrollcommand=self.vbar.set) #设置  
         self.canvas.pack(expand=True,fill=BOTH)
+
+        #存储最近的两个点
+        self.point_a = {}
+        self.point_b = {}
+
+        #为了寻找最近点对，存储当前的距离
+        self.curr_distance = MAX_DISTANCE
+
+    def xview(self, MOVETO, f):
+        self.canvas.xview(MOVETO,f)
+        # print(MOVETO)
+        self.hbar_offset = round(float(self.total_w*eval(f)))
+        # print("移动百分比",eval(f))
+        # print("移动的像素是%f\n"%float(self.total_w*eval(f)))
+
+    def yview(self, MOVETO, f):
+        self.canvas.yview(MOVETO,f)
+        # print(MOVETO)
+        self.vbar_offset = round(float(self.total_w*eval(f)))
+        # print("移动百分比",eval(f))
+        # print("移动的像素是%f\n"%float(self.total_w*eval(f)))
 
     def generate_random_points(self):    
         for i in range(self.size):
@@ -89,7 +118,13 @@ class ClosestPairs(object):
         if left == right:
             return MAX_DISTANCE
         if left+1 == right:
-            return self.get_distance(self.points_list[left], self.points_list[right])
+            dis = self.get_distance(self.points_list[left], self.points_list[right])
+            #加入寻找最近点对的相关代码
+            if dis < self.curr_distance:
+                self.curr_distance = dis
+                self.point_a = self.points_list[left]
+                self.point_b = self.points_list[right]
+            return dis
 
         mid = (left + right) // 2    #取x的中点
         d1 = self.get_closest_pairs(left, mid)
@@ -109,24 +144,49 @@ class ClosestPairs(object):
                 if temp_list[j]['y'] - temp_list[i]['y'] < d:
                     d3 = self.get_distance(temp_list[i], temp_list[j])
                     d = min(d, d3)
+                    #加入寻找最近点对的相关代码
+                    if d == d3 and d < self.curr_distance:
+                        self.curr_distance = d
+                        self.point_a = temp_list[i]
+                        self.point_b = temp_list[j]
                 else:
                     break
         return d
     
-    def add_point(self,event):
-        self.size += 1
-        self.canvas.create_oval(event.x-self.dot_radius, event.y-self.dot_radius,event.x+self.dot_radius, event.y+self.dot_radius, fill='blue')
+    def add_point(self, event):
         new_point = {}
-        new_point["x"] = event.x
-        new_point["y"] = event.y
+        new_point["x"] = self.hbar_offset + event.x
+        new_point["y"] = self.vbar_offset + event.y
+        print("点击的坐标是(%d,%d)"%(new_point["x"],new_point['y']))
+        #判断点是否重复
+        if new_point in self.points_list:
+            print("您点击的点已经记录在界面上存在！")
+            return
+        self.size += 1
+        self.canvas.create_oval(new_point["x"]-self.dot_radius,new_point["y"]-self.dot_radius,new_point["x"]+self.dot_radius, new_point["y"]+self.dot_radius, fill='blue')
         self.points_list.append(new_point)
         self.points_list = self.sort_x(self.points_list)
-        print("点击加入点后的最短距离为：",self.get_closest_pairs(0, self.size-1))
-
+        print("分治算法得到点击加入点后的最短点对距离为：%f  最短点对的坐标是(%d,%d),(%d,%d)"
+            %(self.get_closest_pairs(0, self.size-1), self.point_a['x'], self.point_a['y'], self.point_b['x'], self.point_b['y']))
+        
+    def brute_closest_pairs(self):
+        init_distance = MAX_DISTANCE
+        for i in range(self.size):
+            for j in range(i+1, self.size):
+                dis = self.get_distance(self.points_list[i], self.points_list[j])
+                if dis < init_distance:
+                    init_distance = dis
+                    self.point_a = self.points_list[i]
+                    self.point_b = self.points_list[j]
+        print("常规算法得到最终平面上最短点对距离是：%f  最短点对的坐标是(%d,%d),(%d,%d)"
+            %(init_distance, self.point_a['x'], self.point_a['y'], self.point_b['x'], self.point_b['y']))
         
 
 if __name__ == '__main__':
-    closest_pairs = ClosestPairs(1000,2000,2000)
-    closest_pairs.generate_random_points()
-    closest_pairs.points_list = closest_pairs.sort_x(closest_pairs.points_list)
-    print(closest_pairs.get_closest_pairs(0, 999))
+    size = int(input("请输入点的数量："))
+    cp = ClosestPairs(size,2000,2000)
+    cp.generate_random_points()
+    cp.points_list = cp.sort_x(cp.points_list)
+    print("分治算法得到最终平面上最短点对距离是：%f  最短点对的坐标是(%d,%d),(%d,%d)"
+            %(cp.get_closest_pairs(0, cp.size-1), cp.point_a['x'], cp.point_a['y'], cp.point_b['x'], cp.point_b['y']))
+    cp.brute_closest_pairs()
