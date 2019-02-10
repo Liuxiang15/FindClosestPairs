@@ -8,12 +8,12 @@ class ClosestPairs(object):
 
     pass
 
-root=Tk()
-root.title("Find Closest Pairs")
+window=Tk()
+window.title("Find Closest Pairs")
 
 frame_w = 1000
 frame_h = 700
-frame = Frame(root,width=frame_w,height=frame_h)
+frame = Frame(window,width=frame_w,height=frame_h)
 frame.grid(row=0,column=0)
 
 canvas_w = 1000
@@ -30,12 +30,11 @@ canvas = Canvas(
 
 dot_width = 4
 
-hbar=Scrollbar(frame,orient=HORIZONTAL)#水平滚动条 
-# hbar.place(x =0,y=400,width=5000,height=10) 
+hbar=Scrollbar(frame,orient=HORIZONTAL) #水平滚动条 
 hbar.pack(side=BOTTOM,fill=X)
 hbar.config(command=canvas.xview) 
 
-vbar=Scrollbar(frame,orient=VERTICAL)
+vbar=Scrollbar(frame,orient=VERTICAL)   #竖直滚动条 
 vbar.pack(side=RIGHT,fill=Y)
 vbar.config(command=canvas.yview)
 
@@ -57,25 +56,3 @@ generate_random_points(1000,canvas)
 
 mainloop()
 
-
-# from tkinter import *
-# root=Tk()
-
-# frame=Frame(root,width=300,height=300)
-# frame.grid(row=0,column=0)
-
-# canvas=Canvas(frame,bg='#FFFFFF',width=300,height=300,scrollregion=(0,0,500,500))
-
-# hbar=Scrollbar(frame,orient=HORIZONTAL)
-# hbar.pack(side=BOTTOM,fill=X)
-# hbar.config(command=canvas.xview)
-
-# vbar=Scrollbar(frame,orient=VERTICAL)
-# vbar.pack(side=RIGHT,fill=Y)
-# vbar.config(command=canvas.yview)
-
-# canvas.config(width=300,height=300)
-# canvas.config(xscrollcommand=hbar.set, yscrollcommand=vbar.set)
-# canvas.pack(side=LEFT,expand=True,fill=BOTH)
-
-# root.mainloop()
