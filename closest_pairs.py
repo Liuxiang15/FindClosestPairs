@@ -26,8 +26,7 @@ canvas = Canvas(
 	background="white",
     scrollregion=(0,0,10000, 10000)
 	)
-
-# canvas.pack()
+    
 
 dot_width = 4
 
