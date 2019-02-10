@@ -34,11 +34,14 @@ class ClosestPairs(object):
                         scrollregion=(0,0,self.total_w, self.total_h)
                     )
 
-        #圆点宽度
-        self.dot_width = 4
+        #canvas绑定点击事件
+        self.canvas.bind("<Button -1>", self.add_point)
+
+        #圆点半径
+        self.dot_radius = 2
         #可选坐标集合
-        self.x_list = list(range(self.total_w - self.dot_width))
-        self.y_list = list(range(self.total_h - self.dot_width))
+        self.x_list = list(range(self.dot_radius, self.total_w - self.dot_radius))
+        self.y_list = list(range(self.dot_radius, self.total_h - self.dot_radius))
         #实际坐标集合
         # 使用random模块中的random.sample函数产生一个数值范围内的不重复的随机数
         self.posx_list = random.sample(self.x_list, size)
@@ -68,7 +71,7 @@ class ClosestPairs(object):
             point["x"] =  self.posx_list[i]
             point["y"] =  self.posy_list[i]
             self.points_list.append(point)
-            self.canvas.create_oval(self.posx_list[i], self.posy_list[i], self.posx_list[i]+self.dot_width, self.posy_list[i]+self.dot_width, fill='red')
+            self.canvas.create_oval(self.posx_list[i]-self.dot_radius, self.posy_list[i]-self.dot_radius, self.posx_list[i]+self.dot_radius, self.posy_list[i]+self.dot_radius, fill='red')
         self.window.mainloop()
 
     def sort_x(self, points_list):
@@ -109,6 +112,11 @@ class ClosestPairs(object):
                 else:
                     break
         return d
+    
+    def add_point(self,event):
+        self.canvas.create_oval(event.x-self.dot_radius, event.y-self.dot_radius,event.x+self.dot_radius, event.y+self.dot_radius, fill='blue')
+        # self.window.mainloop()
+        pass
         
 
 if __name__ == '__main__':
