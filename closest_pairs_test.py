@@ -72,7 +72,6 @@ class ClosestPairs(object):
             return MAX_DISTANCE
         if left+1 == right:
             dis = self.get_distance(self.points_list[left], self.points_list[right])
-            #加入寻找最近点对的相关代码
             if dis < self.curr_distance:
                 self.curr_distance = dis
                 self.point_a = self.points_list[left]
@@ -82,29 +81,33 @@ class ClosestPairs(object):
         mid = (left + right) // 2    #取x的中点
         d1 = self.get_closest_pairs(left, mid)
         d2 = self.get_closest_pairs(mid, right)
-        d = min(d1, d2)
+        min_dis = min(d1, d2)
 
-        temp_list = []
-        for i in range(left, right+1):
-            if math.fabs(self.points_list[i]["x"] - self.points_list[mid]["x"]) <= d:
-                temp_list.append(self.points_list[i])
-
+        temp_list=[] 
+        i = mid-1
+        while i >= 0 and (self.points_list[mid]['x']-self.points_list[i]['x']) <= min_dis:
+            temp_list.append(self.points_list[i])
+            i -= 1
+        j = mid+1
+        while j <= right and (self.points_list[j]['x']-self.points_list[mid]['x']) <= min_dis:
+            temp_list.append(self.points_list[i])
+            j += 1
         temp_list = self.sort_y(temp_list)
         temp_len = len(temp_list)
         for i in range(temp_len):
             for j in range(i+1, temp_len):
                 #不超过六个点进入此循环
-                if temp_list[j]['y'] - temp_list[i]['y'] < d:
+                if temp_list[j]['y'] - temp_list[i]['y'] < min_dis:
                     d3 = self.get_distance(temp_list[i], temp_list[j])
-                    d = min(d, d3)
+                    min_dis = min(min_dis, d3)
                     #加入寻找最近点对的相关代码
-                    if d == d3 and d < self.curr_distance:
-                        self.curr_distance = d
+                    if min_dis == d3 and min_dis < self.curr_distance:
+                        self.curr_distance = min_dis
                         self.point_a = temp_list[i]
                         self.point_b = temp_list[j]
                 else:
                     break
-        return d
+        return min_dis
     
     def brute_closest_pairs(self, points_list):
         init_distance = MAX_DISTANCE
@@ -122,17 +125,17 @@ class ClosestPairs(object):
 
     #比较不同数据规模下两种算法的用时
     def compare(self):
-        # size_list = [10, 100, 1000, 10**4]
-        size_list = [10**5, 10**6]
+        size_list = [10, 100, 1000, 10**4, 10**5]
+        # size_list = [10**5, 10**6]
         for size in size_list:
             print("数据量为%d时两种算法的运行时间如下："%size)
             self.size = size
             self.generate_random_points()
 
-            # start = time.clock()
-            # self.brute_closest_pairs(copy.deepcopy(self.points_list))       #传参得穿拷贝对象
-            # end = time.clock()
-            # print("常规算法用时:%.4f" %(end - start))
+            start = time.clock()
+            self.brute_closest_pairs(copy.deepcopy(self.points_list))       #传参得穿拷贝对象
+            end = time.clock()
+            print("常规算法用时:%.4f" %(end - start))
 
             start = time.clock()
             self.points_list = self.sort_x(self.points_list)

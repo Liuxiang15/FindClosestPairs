@@ -55,17 +55,9 @@ class ClosestPairs(object):
 
         #圆点半径
         self.dot_radius = 2
-        #可选坐标集合
-        # self.x_list = list(range(self.dot_radius, self.total_w - self.dot_radius))
-        # self.y_list = list(range(self.dot_radius, self.total_h - self.dot_radius))
-        # #实际坐标集合
-        # # 使用random模块中的random.sample函数产生一个数值范围内的不重复的随机数
-        # self.posx_list = random.sample(self.x_list, size)
-        # self.posy_list = random.sample(self.y_list, size)
 
         self.posx_list = []
         self.posy_list = []
-
 
         #声明点列表
         self.points_list = []
@@ -126,8 +118,8 @@ class ClosestPairs(object):
             point["x"] =  self.posx_list[i]
             point["y"] =  self.posy_list[i]
             self.points_list.append(point)   
-            self.canvas.create_oval(self.posx_list[i]-self.dot_radius, self.posy_list[i]-self.dot_radius, self.posx_list[i]+self.dot_radius, self.posy_list[i]+self.dot_radius, fill='red')
-        # self.window.mainloop()
+            self.canvas.create_oval(self.posx_list[i]-self.dot_radius, self.posy_list[i]-self.dot_radius, 
+                                    self.posx_list[i]+self.dot_radius, self.posy_list[i]+self.dot_radius, fill='red')
 
     def sort_x(self, points_list):
         return sorted(points_list, key=itemgetter('x'))
@@ -157,27 +149,31 @@ class ClosestPairs(object):
         d2 = self.get_closest_pairs(mid, right)
         d = min(d1, d2)
 
-        temp_list = []
-        for i in range(left, right+1):
-            if math.fabs(self.points_list[i]["x"] - self.points_list[mid]["x"]) <= d:
-                temp_list.append(self.points_list[i])
-
+        temp_list=[] 
+        i = mid-1
+        while i >= 0 and (self.points_list[mid]['x']-self.points_list[i]['x']) <= min_dis:
+            temp_list.append(self.points_list[i])
+            i -= 1
+        j = mid+1
+        while j <= right and (self.points_list[j]['x']-self.points_list[mid]['x']) <= min_dis:
+            temp_list.append(self.points_list[i])
+            j += 1
         temp_list = self.sort_y(temp_list)
         temp_len = len(temp_list)
         for i in range(temp_len):
             for j in range(i+1, temp_len):
                 #不超过六个点进入此循环
-                if temp_list[j]['y'] - temp_list[i]['y'] < d:
+                if temp_list[j]['y'] - temp_list[i]['y'] < min_dis:
                     d3 = self.get_distance(temp_list[i], temp_list[j])
-                    d = min(d, d3)
+                    min_dis = min(min_dis, d3)
                     #加入寻找最近点对的相关代码
-                    if d == d3 and d < self.curr_distance:
-                        self.curr_distance = d
+                    if min_dis == d3 and min_dis < self.curr_distance:
+                        self.curr_distance = min_dis
                         self.point_a = temp_list[i]
                         self.point_b = temp_list[j]
                 else:
                     break
-        return d
+        return min_dis
     
     def add_point(self, event):
         new_point = {}
