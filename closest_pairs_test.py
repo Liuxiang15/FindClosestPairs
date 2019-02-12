@@ -46,12 +46,14 @@ class ClosestPairs(object):
 
 
     def generate_random_points(self):    
-        while len(self.points_list) < self.size:
+        #创建随机点函数会包括重复点
+        self.posx_list = np.random.random_integers(self.dot_radius, self.total_w - self.dot_radius, size=self.size)
+        self.posy_list = np.random.random_integers(self.dot_radius, self.total_w - self.dot_radius, size=self.size)
+        for i in range(self.size):
             point = {}
-            point["x"] =  np.random.random_integers(self.dot_radius, self.total_w - self.dot_radius)
-            point["y"] =  np.random.random_integers(self.dot_radius, self.total_w - self.dot_radius)
-            if not point in self.points_list:
-                self.points_list.append(point)
+            point["x"] =  self.posx_list[i]
+            point["y"] =  self.posy_list[i]
+            self.points_list.append(point)
             
 
     def sort_x(self, points_list):
@@ -121,7 +123,7 @@ class ClosestPairs(object):
     #比较不同数据规模下两种算法的用时
     def compare(self):
         # size_list = [10, 100, 1000, 10**4]
-        size_list = [10**5]
+        size_list = [10**5, 10**6]
         for size in size_list:
             print("数据量为%d时两种算法的运行时间如下："%size)
             self.size = size
